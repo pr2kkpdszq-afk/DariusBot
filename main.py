@@ -7,12 +7,14 @@ TELEGRAM_TOKEN = "8447695374:AAHrwIibc6JQ0gFwcV9fXukYprWj-XL0iU4"  # replace wit
 
 bot = Bot(token=TELEGRAM_TOKEN)
 dp = Dispatcher(bot=bot)
+async def start_cmd(message: Message):
+    await message.answer("There! I'm @DARILEOBOT. What do you need?")
 
-@dp.message(Command("start"))
+dp.register_message_handler(start_cmd, commands= )
 async def start(message: Message):
     await message.answer("Hey there! I'm @DARILEOBOT. What do you need?")
 
-@dp.message()
+dp.register_message_handler(on_message)
 async def echo(message: Message):
     await message.answer(message.text)
 
@@ -22,4 +24,5 @@ async def main():
 if __name__ == "__main__":
 
     asyncio.run(main())
+
 
