@@ -1,5 +1,7 @@
 aiogram
 python-dotenv
+magic-filter
+
 
 
 
