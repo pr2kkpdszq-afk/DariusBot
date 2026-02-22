@@ -4,6 +4,7 @@ python-dotenv
 aiohttp
 multidict
 attrs
+yarl
 
 
 
