@@ -6,6 +6,7 @@ multidict
 attrs
 yarl
 idna
+propcache
 
 
 
