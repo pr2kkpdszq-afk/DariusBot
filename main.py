@@ -6,7 +6,7 @@ from aiogram.types import Message
 TELEGRAM_TOKEN = "8447695374:AAHrwIibc6JQ0gFwcV9fXukYprWj-XL0iU4"  # replace with your real token
 
 bot = Bot(token=TELEGRAM_TOKEN)
-dp = Dispatcher()
+dp = Dispatcher(bot=bot)
 
 @dp.message(Command("start"))
 async def start(message: Message):
@@ -22,3 +22,4 @@ async def main():
 if __name__ == "__main__":
 
     asyncio.run(main())
+
