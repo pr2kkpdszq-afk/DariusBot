@@ -1,7 +1,7 @@
-aiogram
-python-dotenv
+aiogram==2.25.1
 magic-filter
-sticker-to-set
+python-dotenv
+
 
 
 
