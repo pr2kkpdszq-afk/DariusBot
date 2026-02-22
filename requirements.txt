@@ -3,6 +3,7 @@ magic-filter
 python-dotenv
 aiohttp
 multidict
+attrs
 
 
 
