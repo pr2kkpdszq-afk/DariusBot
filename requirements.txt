@@ -8,6 +8,7 @@ yarl
 idna
 propcache
 aiohappyeyeballs
+aiosignal
 
 
 
