@@ -9,6 +9,7 @@ idna
 propcache
 aiohappyeyeballs
 aiosignal
+frozenlist
 
 
 
