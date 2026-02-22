@@ -10,6 +10,7 @@ propcache
 aiohappyeyeballs
 aiosignal
 frozenlist
+babel
 
 
 
