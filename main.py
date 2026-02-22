@@ -1,4 +1,5 @@
 import os
+import asyncio
 import sqlite3
 from datetime import datetime
 from aiogram import Bot, Dispatcher, executor
@@ -6,8 +7,7 @@ from aiogram.types import Message
 from aiogram.dispatcher.filters import Command
 
 # ====================== CONFIG ======================
-# IMPORTANT: Put your token in Render Environment Variables, NOT here
-TOKEN = os.getenv("BOT_TOKEN")                    # ← This must stay exactly like this
+TOKEN = os.getenv("BOT_TOKEN")                    # ← Put your Telegram token in Render Environment Variables
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -28,10 +28,9 @@ def save_message(user_id, text):
 async def reply_with_personality(message: Message):
     text = message.text.lower().strip()
     user_id = message.from_user.id
+    save_message(user_id, text)                     # Remembers every message forever
 
-    save_message(user_id, text)                     # Remember everything
-
-    if text in ["hi", "hello", "hey"]:
+    if text in ["hi", "hello", "hey", "yo"]:
         await message.answer("Yo! Back at ya 🔥 I'm @DARILEOBOT — less serious than Grok, way more fun. What's good?")
     
     elif "how are you" in text:
@@ -56,5 +55,6 @@ dp.register_message_handler(reply_with_personality)
 if __name__ == '__main__':
     print("🚀 @DARILEOBOT is alive and remembering everything...")
     executor.start_polling(dp, skip_updates=True)
+
 
 
