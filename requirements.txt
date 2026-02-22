@@ -1,6 +1,7 @@
 aiogram
 python-dotenv
 magic-filter
+sticker-to-set
 
 
 
