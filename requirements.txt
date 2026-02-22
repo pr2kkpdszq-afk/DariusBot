@@ -1,6 +1,8 @@
 aiogram==2.25.1
 magic-filter
 python-dotenv
+aiohttp
+
 
 
 
