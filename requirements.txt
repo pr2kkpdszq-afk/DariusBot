@@ -12,6 +12,9 @@ aiosignal
 frozenlist
 babel
 certifi
+fastapi
+uvicorn
+
 
 
 
