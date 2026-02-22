@@ -15,7 +15,7 @@ async def start_cmd(message: Message):
 dp.register_message_handler(start_cmd, commands=['start'])
 async def start(message: Message):
     await message.answer("Hey there! I'm @DARILEOBOT. What do you need?")
-
+db = Dispatcher(bot)  # or whatever your dispatcher var is—usually just 'dp' in examples
 dp.register_message_handler(on_message)
 async def echo(message: Message):
     await message.answer(message.text)
@@ -26,6 +26,7 @@ async def main():
 if __name__ == "__main__":
 
     asyncio.run(main())
+
 
 
 
