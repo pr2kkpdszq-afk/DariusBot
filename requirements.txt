@@ -11,6 +11,7 @@ aiohappyeyeballs
 aiosignal
 frozenlist
 babel
+certifi
 
 
 
