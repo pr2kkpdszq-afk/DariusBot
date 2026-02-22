@@ -5,6 +5,7 @@ aiohttp
 multidict
 attrs
 yarl
+idna
 
 
 
