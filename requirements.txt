@@ -12,6 +12,7 @@ aiosignal
 frozenlist
 babel
 certifi
+aiogram.filters
 
 
 
