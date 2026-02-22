@@ -1,5 +1,3 @@
-aiogram==3.0.0
-pydantic==2.5.3  # or 2.4.x—avoid 2.6+ if it pulls Rust
-# If you have pydantic-core listed, remove it—it's auto-pulled
-# Drop any jellyfish, ahash, or other Rust-y deps unless needed
+aiogram==2.25.1
+
 
