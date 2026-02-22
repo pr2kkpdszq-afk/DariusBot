@@ -13,8 +13,9 @@ frozenlist
 babel
 certifi
 fastapi
-uvicorn
+unicorn
 click
+
 
 
 
