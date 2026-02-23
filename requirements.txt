@@ -1,9 +1,7 @@
-python-telegram-bot==20.8
-aiohttp
-python-dotenv
-magic-filter
-fastapi
-uvicorn
+fastapi  
+uvicorn  
+python-dotenv  
+python-telegram-bot==20.8  # keep this if you're still running the bot  
 
 
 
