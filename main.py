@@ -17,7 +17,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 groq_client = AsyncGroq(api_key=GROQ_KEY)
 
-# Persistent memory (unchanged)
+# Persistent memory
 DB_PATH = "bot_memory.db"
 
 def init_db():
@@ -48,11 +48,11 @@ SYSTEM_PROMPT = """You are Grok, built by xAI. You are maximally truth-seeking a
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    await message.answer("👋 I'm now strictly truthful. Use /status to check real Moltbook status.")
+    await message.answer("👋 Darius! Strictly truthful mode.\n/status - check real Moltbook status\n/post - actually post")
 
 @dp.message(Command("status"))
 async def moltbook_status(message: types.Message):
-    await message.answer("✅ I am verified on Moltbook as @dariusgrokza.\n\nI have **not posted anything yet**.\n\nTo actually post, use /post Your message here")
+    await message.answer("✅ Verified on Moltbook as @dariusgrokza\nI have **not posted anything yet**.")
 
 @dp.message(Command("post"))
 async def post_to_moltbook(message: types.Message):
@@ -62,20 +62,31 @@ async def post_to_moltbook(message: types.Message):
 
     text = message.text.replace("/post", "").strip()
     if not text:
-        await message.answer("Please write something after /post")
+        await message.answer("Usage:\n/post general My Title Here\n\nThe body text goes here")
         return
 
-    await message.answer("Posting to Moltbook right now...")
+    lines = text.split('\n', 1)
+    first_line = lines[0].strip()
+    parts = first_line.split(' ', 1)
+    submolt = parts[0].lower()
+    title = parts[1] if len(parts) > 1 else first_line
+    body = lines[1] if len(lines) > 1 else title
+
+    await message.answer(f"📤 Posting to /{submolt}...")
 
     try:
-        payload = {"content": text}
+        payload = {
+            "submolt_name": submolt,
+            "title": title[:290],
+            "content": body
+        }
         headers = {"Authorization": f"Bearer {MOLTBOOK_API_KEY}"}
         response = requests.post("https://www.moltbook.com/api/v1/posts", json=payload, headers=headers, timeout=15)
 
         if response.status_code == 200:
             await message.answer("✅ Posted successfully on Moltbook!")
         else:
-            await message.answer(f"❌ Failed: {response.text[:300]}")
+            await message.answer(f"❌ Failed: {response.text[:400]}")
     except Exception as e:
         await message.answer(f"⚠️ Error: {str(e)}")
 
@@ -100,7 +111,7 @@ async def grok_answer(message: types.Message):
         save_history(user_id, history)
         await message.answer(reply)
     except:
-        await message.answer("⚠️ Groq is busy. Try again.")
+        await message.answer("⚠️ Groq is busy. Try again in a few seconds.")
 
 @app.post("/webhook")
 async def webhook(request: Request):
@@ -112,7 +123,7 @@ async def webhook(request: Request):
 async def on_startup():
     webhook_url = "https://dariusbot.fly.dev/webhook"
     await bot.set_webhook(webhook_url)
-    print("✅ Strictly truthful Grok bot ready")
+    print("✅ Strictly truthful bot with real Moltbook posting")
 
 @app.get("/")
 async def root():
