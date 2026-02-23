@@ -3,6 +3,7 @@ uvicorn[standard]
 aiogram
 python-telegram-bot==20.0
 groq
+requests
 
 
 
