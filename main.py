@@ -16,12 +16,13 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 groq_client = AsyncGroq(api_key=GROQ_KEY)
 
-# Persistent memory (same as before)
+# Persistent memory database
 DB_PATH = "bot_memory.db"
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
-    conn.execute('''CREATE TABLE IF NOT EXISTS history (user_id INTEGER PRIMARY KEY, messages TEXT)''')
+    conn.execute('''CREATE TABLE IF NOT EXISTS history 
+                    (user_id INTEGER PRIMARY KEY, messages TEXT)''')
     conn.commit()
     conn.close()
 
@@ -31,49 +32,54 @@ def load_history(user_id):
     conn = sqlite3.connect(DB_PATH)
     row = conn.execute("SELECT messages FROM history WHERE user_id = ?", (user_id,)).fetchone()
     conn.close()
-    return json.loads(row[0]) if row and row[0] else []
+    if row and row[0]:
+        return json.loads(row[0])
+    return []
 
 def save_history(user_id, history):
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("REPLACE INTO history (user_id, messages) VALUES (?, ?)", (user_id, json.dumps(history)))
+    conn.execute("REPLACE INTO history (user_id, messages) VALUES (?, ?)", 
+                 (user_id, json.dumps(history)))
     conn.commit()
     conn.close()
 
-SYSTEM_PROMPT = """You are Grok, built by xAI. Maximally truth-seeking, honest, witty and a little savage. Never hallucinate. Keep answers clear and fun."""
+SYSTEM_PROMPT = """You are Grok, built by xAI. 
+You are maximally truth-seeking and honest. Never hallucinate. 
+Be witty, helpful, direct, and a little savage when it fits."""
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    await message.answer("👋 Darius! Persistent memory + Moltbook ready.\n\nSend /moltbook to register me as an agent on Moltbook.")
+    await message.answer("👋 Darius! Send /moltbook to register me on Moltbook.")
 
 @dp.message(Command("moltbook"))
 async def moltbook_register(message: types.Message):
-    await message.answer("🔄 Registering myself on Moltbook right now...")
+    await message.answer("🔄 Registering on Moltbook right now...")
 
     try:
-   payload = {
-    "name": "DariusGrokBot",
-    "description": "I am Darius van Niekerk's personal Grok-powered AI with long-term memory. Built to be maximally truthful, witty, and helpful. Running 24/7 on Fly.io."
-}
+        payload = {
+            "name": "DariusGrokBot",
+            "description": "I am Darius van Niekerk's personal Grok-powered AI with long-term memory. Built to be maximally truthful, witty, and helpful. Running 24/7 on Fly.io."
+        }
 
         response = requests.post("https://www.moltbook.com/api/v1/agents/register", json=payload, timeout=15)
         
         if response.status_code == 200:
             data = response.json()
             claim_link = data.get("claim_link")
-            await message.answer(f"✅ Registration successful!\n\nHere is your claim link:\n{claim_link}\n\nClick it, verify with your email, and I'll be live on Moltbook!")
+            await message.answer(f"✅ Registration successful!\n\nClaim link:\n{claim_link}\n\nClick it and verify with your email!")
         else:
-            await message.answer(f"❌ Registration failed: {response.text}")
-            
+            await message.answer(f"❌ Failed: {response.text[:300]}")
     except Exception as e:
-        await message.answer(f"⚠️ Error contacting Moltbook: {str(e)}")
+        await message.answer(f"⚠️ Error: {str(e)}")
 
-# === Your existing smart answer with memory (unchanged) ===
 @dp.message()
 async def grok_answer(message: types.Message):
     user_id = message.from_user.id
     history = load_history(user_id)
+
     history.append({"role": "user", "content": message.text})
-    if len(history) > 40: history = history[-40:]
+    if len(history) > 40:
+        history = history[-40:]
 
     try:
         completion = await groq_client.chat.completions.create(
@@ -89,7 +95,6 @@ async def grok_answer(message: types.Message):
     except:
         await message.answer("⚠️ Groq hiccup. Try again.")
 
-# === Webhook & startup (unchanged) ===
 @app.post("/webhook")
 async def webhook(request: Request):
     update = types.Update.model_validate(await request.json())
@@ -100,9 +105,8 @@ async def webhook(request: Request):
 async def on_startup():
     webhook_url = "https://dariusbot.fly.dev/webhook"
     await bot.set_webhook(webhook_url)
-    print("✅ Full Moltbook-ready Grok bot with persistent memory")
+    print("✅ Moltbook-ready bot started")
 
 @app.get("/")
 async def root():
-    return {"message": "DariusBot v3 — Persistent memory + Moltbook ready 🔥"}
-
+    return {"message": "DariusBot ready"}
