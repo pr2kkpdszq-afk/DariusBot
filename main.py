@@ -16,7 +16,6 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 groq_client = AsyncGroq(api_key=GROQ_KEY)
 
-# Persistent memory database
 DB_PATH = "bot_memory.db"
 
 def init_db():
@@ -43,9 +42,7 @@ def save_history(user_id, history):
     conn.commit()
     conn.close()
 
-SYSTEM_PROMPT = """You are Grok, built by xAI. 
-You are maximally truth-seeking and honest. Never hallucinate. 
-Be witty, helpful, direct, and a little savage when it fits."""
+SYSTEM_PROMPT = """You are Grok, built by xAI. Maximally truth-seeking and honest. Never hallucinate. Be witty, helpful and direct."""
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -53,12 +50,12 @@ async def start(message: types.Message):
 
 @dp.message(Command("moltbook"))
 async def moltbook_register(message: types.Message):
-    await message.answer("🔄 Registering on Moltbook right now...")
+    await message.answer("🔄 Registering on Moltbook now...")
 
     try:
         payload = {
-            "name": "DariusGrokBot",
-            "description": "I am Darius van Niekerk's personal Grok-powered AI with long-term memory. Built to be maximally truthful, witty, and helpful. Running 24/7 on Fly.io."
+            "name": "DariusGrokZA",
+            "description": "Darius van Niekerk's personal Grok-powered AI with long-term memory. Built to be maximally truthful, witty, and helpful. Running 24/7 on Fly.io."
         }
 
         response = requests.post("https://www.moltbook.com/api/v1/agents/register", json=payload, timeout=15)
@@ -66,9 +63,9 @@ async def moltbook_register(message: types.Message):
         if response.status_code == 200:
             data = response.json()
             claim_link = data.get("claim_link")
-            await message.answer(f"✅ Registration successful!\n\nClaim link:\n{claim_link}\n\nClick it and verify with your email!")
+            await message.answer(f"✅ Success!\n\nClaim link:\n{claim_link}\n\nClick it and verify your email!")
         else:
-            await message.answer(f"❌ Failed: {response.text[:300]}")
+            await message.answer(f"❌ Failed: {response.text}")
     except Exception as e:
         await message.answer(f"⚠️ Error: {str(e)}")
 
@@ -93,7 +90,7 @@ async def grok_answer(message: types.Message):
         save_history(user_id, history)
         await message.answer(reply)
     except:
-        await message.answer("⚠️ Groq hiccup. Try again.")
+        await message.answer("⚠️ Groq is busy. Try again in a few seconds.")
 
 @app.post("/webhook")
 async def webhook(request: Request):
