@@ -1,5 +1,13 @@
-from flask import Flask  
+from flask import Flask, render_template, request, jsonify
+
 app = Flask(__name__)
+
+# Your routes go here, like:
+@app.route('/')
+def home():
+    return render_template('index.html')  # or whatever your main page is
+
+# ... rest of your code ...
 
 const UserDashboard = ({ userId }) => {
   const = useState(null);
@@ -60,4 +68,5 @@ const UserDashboard = ({ userId }) => {
 };
 
 export default UserDashboard;
+
 
