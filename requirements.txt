@@ -1,20 +1,8 @@
 aiogram==2.25.1
+aiohttp==3.9.9
 magic-filter
 python-dotenv
-aiohttp
-multidict
-attrs
-yarl
-idna
-propcache
-aiohappyeyeballs
-aiosignal
-frozenlist
-babel
-certifi
-fastapi==0.115.0
-uvicorn==0.30.6
-h11==0.14.0
+
 
 
 
