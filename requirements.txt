@@ -14,8 +14,8 @@ babel
 certifi
 fastapi
 uvicorn
-click
 h11
+
 
 
 
