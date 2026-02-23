@@ -9,7 +9,7 @@ app = FastAPI()
 # Get your token from Fly.io secrets (set with: fly secrets set TELEGRAM_TOKEN=your-token-here)
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 if not TOKEN:
-    raise ValueError("TELEGRAM_TOKEN not set! Add it via fly secrets set TELEGRAM_TOKEN=...")
+    raise ValueError("TELEGRAM_TOKEN not set! Add it via fly secrets set TELEGRAM_TOKEN=8447695374:AAHrwIibc6JQ0gFwcV9fXukYprWj-XL0iU4")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -29,6 +29,7 @@ async def on_startup():
 @app.get("/")
 async def root():
     return {"message": "Hello from DariusBot on Fly.io!"}
+
 
 
 
