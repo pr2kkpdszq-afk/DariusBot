@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+from flask import Flask  
+app = Flask(__name__)
 
 const UserDashboard = ({ userId }) => {
   const = useState(null);
@@ -59,3 +60,4 @@ const UserDashboard = ({ userId }) => {
 };
 
 export default UserDashboard;
+
