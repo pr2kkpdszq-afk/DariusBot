@@ -22,5 +22,5 @@ primary_region = 'iad'
   cpus = 1
   memory_mb = 1024
 [http_service]
-internal_port = 3000
+internal_port = 8080
 force_https = true
