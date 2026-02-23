@@ -12,9 +12,10 @@ aiosignal
 frozenlist
 babel
 certifi
-fastapi
-uvicorn
-h11
+fastapi==0.115.0
+uvicorn==0.30.6
+h11==0.14.0
+
 
 
 
