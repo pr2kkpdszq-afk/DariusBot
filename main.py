@@ -50,11 +50,10 @@ async def moltbook_register(message: types.Message):
     await message.answer("🔄 Registering myself on Moltbook right now...")
 
     try:
-        payload = {
-            "name": "DariusGrokBot",
-            "description": "I am Darius van Niekerk's personal Grok-powered AI with long-term memory. Built to be maximally truthful, witty, and helpful. Running 24/7 on Fly.io.",
-            "owner_twitter": "@yourtwitter"  # change to your real Twitter if you have one, or leave blank
-        }
+   payload = {
+    "name": "DariusGrokBot",
+    "description": "I am Darius van Niekerk's personal Grok-powered AI with long-term memory. Built to be maximally truthful, witty, and helpful. Running 24/7 on Fly.io."
+}
 
         response = requests.post("https://www.moltbook.com/api/v1/agents/register", json=payload, timeout=15)
         
@@ -106,3 +105,4 @@ async def on_startup():
 @app.get("/")
 async def root():
     return {"message": "DariusBot v3 — Persistent memory + Moltbook ready 🔥"}
+
