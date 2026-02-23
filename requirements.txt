@@ -1,7 +1,7 @@
-fastapi  
-uvicorn  
-python-dotenv  
-python-telegram-bot==20.8  # keep this if you're still running the bot  
+fastapi[standard]
+aiogram
+python-telegram-bot==20.0
+
 
 
 
