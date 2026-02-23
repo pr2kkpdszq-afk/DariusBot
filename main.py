@@ -1,60 +1,61 @@
-import os
-import asyncio
-import sqlite3
-from datetime import datetime
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message
-from aiogram.dispatcher.filters import Command
+import { useEffect, useState } from 'react';
 
-# ====================== CONFIG ======================
-TOKEN = os.getenv("BOT_TOKEN")                    # ← Your Telegram token from Render Environment Variables
+const UserDashboard = ({ userId }) => {
+  const = useState(null);
+  const = useState(true);
+  const = useState(null);
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) {
+        setError("No user ID provided");
+        setLoading(false);
+        return;
+      }
 
-# ====================== MEMORY (remembers everything forever) ======================
-conn = sqlite3.connect('darius_memory.db')
-conn.execute('''CREATE TABLE IF NOT EXISTS chat_history 
-                (user_id INTEGER, message TEXT, timestamp TEXT)''')
-conn.commit()
+      try {
+        const = await Promise.allSettled([
+          fetch(`/api/profile/${userId}`),
+          fetch(`/api/posts/${userId}`)
+        ]);
 
-def save_message(user_id, text):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conn.execute("INSERT INTO chat_history (user_id, message, timestamp) VALUES (?, ?, ?)",
-                 (user_id, text, timestamp))
-    conn.commit()
+        if (profileRes.status === "fulfilled") {
+          const profile = await profileRes.value.json();
+          setData(prev => ({ ...prev, profile }));
+        } else {
+          throw new Error(profileRes.reason?.message || "Profile fetch failed");
+        }
 
-# ====================== PERSONALITY - Grok style (cheeky + 100% truthful) ======================
-async def reply_with_personality(message: Message):
-    text = message.text.lower().strip()
-    user_id = message.from_user.id
-    save_message(user_id, text)                     # Never forgets
+        if (postsRes.status === "fulfilled") {
+          const posts = await postsRes.value.json();
+          setData(prev => ({ ...prev, posts }));
+        } else {
+          console.warn("Posts failed:", postsRes.reason);
+        }
 
-    if text in ["hi", "hello", "hey", "yo"]:
-        await message.answer("Yo! Back at ya 🔥 I'm @DARILEOBOT — less serious than Grok, way more fun. What's good?")
-    
-    elif "how are you" in text:
-        await message.answer("I'm digital, caffeinated, and always honest. How you holding up?")
-    
-    elif "joke" in text:
-        await message.answer("Why don't AIs play hide and seek? Because good luck hiding when I'm always watching 👀")
-    
-    else:
-        await message.answer("Hmm... interesting. I'll be straight with you — if I don't know something, I'll say so. Tell me more, I'm listening and remembering everything 😉")
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
 
-# ====================== COMMANDS ======================
-async def start_cmd(message: Message):
-    await message.answer("There! I'm @DARILEOBOT — your personal cheeky, truthful assistant. "
-                         "I remember everything you say. Ready to chat?")
+    fetchUserData();
+  }, );
 
-# ====================== HANDLERS ======================
-dp.register_message_handler(start_cmd, commands=['start'])
-dp.register_message_handler(reply_with_personality)
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
-# ====================== START BOT (Modern way that works on Render) ======================
-async def main():
-    print("🚀 @DARILEOBOT is alive, truthful, and remembering everything...")
-    await dp.start_polling()
+  return (
+    <div>
+      <h1>Welcome, {data?.profile?.name || "Guest"}</h1>
+      <ul>
+        {data?.posts?.map(post => (
+          <li key={post.id}>{post.title}</li>
+        )) || <li>No posts yet</li>}
+      </ul>
+    </div>
+  );
+};
 
-if __name__ == '__main__':
-    asyncio.run(main())
+export default UserDashboard;
