@@ -1,6 +1,8 @@
-fastapi[standard]
+fastapi
+uvicorn[standard]
 aiogram
 python-telegram-bot==20.0
+
 
 
 
