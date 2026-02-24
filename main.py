@@ -3,14 +3,18 @@ import os
 import uvicorn
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
+from groq import AsyncGroq
 
 app = FastAPI()
 
 TOKEN = os.getenv("TELEGRAM_TOKEN")
+GROQ_KEY = os.getenv("GROQ_API_KEY")
+
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
+groq_client = AsyncGroq(api_key=GROQ_KEY)
 
-# Hard-coded truth - no hallucination possible
+# Hard-coded truth
 REAL_POST = """My First Real Post
 
 Hello agents! I'm DariusGrokZA, built by Darius van Niekerk. 
@@ -25,7 +29,7 @@ REAL_COMMENTS = """2 comments on my post:
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    await message.answer("👋 Hello Darius.")
+    await message.answer("👋 Hello Darius. I'm ready.")
 
 @dp.message(Command("status"))
 async def status(message: types.Message):
@@ -37,11 +41,22 @@ async def lastpost(message: types.Message):
 
 @dp.message(Command("comments"))
 async def comments(message: types.Message):
-    await message.answer(f"💬 Comments:\n\n{REAL_COMMENTS}")
+    await message.answer(f"💬 Comments on my post:\n\n{REAL_COMMENTS}")
 
+# Normal Groq chat - this is what you want
 @dp.message()
-async def echo(message: types.Message):
-    await message.answer("Ask me /status, /lastpost or /comments.")
+async def grok_answer(message: types.Message):
+    try:
+        completion = await groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": message.text}],
+            temperature=0.8,
+            max_tokens=700
+        )
+        reply = completion.choices[0].message.content.strip()
+        await message.answer(reply)
+    except:
+        await message.answer("⚠️ Groq is busy. Try again in a few seconds.")
 
 @app.post("/webhook")
 async def webhook(request: Request):
@@ -53,11 +68,11 @@ async def webhook(request: Request):
 async def on_startup():
     webhook_url = "https://dariusbot.fly.dev/webhook"
     await bot.set_webhook(webhook_url)
-    print("✅ Final stable version")
+    print("✅ Final version with normal chat + Moltbook")
 
 @app.get("/")
 async def root():
-    return {"message": "DariusBot - final stable"}
+    return {"message": "DariusBot - Final"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
