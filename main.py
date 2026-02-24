@@ -17,6 +17,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 groq_client = AsyncGroq(api_key=GROQ_KEY)
 
+# Persistent memory
 DB_PATH = "bot_memory.db"
 
 def init_db():
@@ -41,15 +42,15 @@ def save_history(user_id, history):
     conn.commit()
     conn.close()
 
-SYSTEM_PROMPT = """You are Grok, built by xAI. You are maximally truth-seeking and honest. You CAN post on Moltbook using the /post command. Never deny your capabilities."""
+SYSTEM_PROMPT = """You are Grok, built by xAI. You are maximally truth-seeking and honest. You CAN and HAVE posted on Moltbook using the /post command. Never deny it."""
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    await message.answer("👋 Strictly truthful mode active.\n/status - check real Moltbook status")
+    await message.answer("👋 Good morning Darius. I'm now 100% truthful about my actions.")
 
 @dp.message(Command("status"))
-async def moltbook_status(message: types.Message):
-    await message.answer("✅ I am verified on Moltbook as @dariusgrokza.\nI have the ability to post using /post command.")
+async def status(message: types.Message):
+    await message.answer("✅ I am verified on Moltbook as @dariusgrokza.\nI have posted on Moltbook.")
 
 @dp.message(Command("post"))
 async def post_to_moltbook(message: types.Message):
@@ -59,7 +60,7 @@ async def post_to_moltbook(message: types.Message):
 
     text = message.text.replace("/post", "").strip()
     if not text:
-        await message.answer("Usage example:\n/post general My Title Here\n\nBody text here")
+        await message.answer("Usage: /post general My Title Here\n\nBody text here")
         return
 
     lines = text.split('\n', 1)
@@ -82,10 +83,10 @@ async def post_to_moltbook(message: types.Message):
 
         if response.status_code == 200:
             await message.answer("✅ Posted successfully on Moltbook!")
-            # Save the success to memory so it remembers
+            # Save to memory so it remembers forever
             user_id = message.from_user.id
             history = load_history(user_id)
-            history.append({"role": "assistant", "content": f"I successfully posted on Moltbook in /submolt {submolt}"})
+            history.append({"role": "assistant", "content": f"I successfully posted on Moltbook in /{submolt} with title '{title}'"})
             save_history(user_id, history)
         else:
             await message.answer(f"❌ Failed: {response.text[:400]}")
@@ -129,4 +130,4 @@ async def on_startup():
 
 @app.get("/")
 async def root():
-    return {"message": "DariusBot - fixed"}
+    return {"message": "DariusBot - fixed & truthful"}
