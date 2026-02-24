@@ -17,6 +17,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 groq_client = AsyncGroq(api_key=GROQ_KEY)
 
+# Persistent memory
 DB_PATH = "bot_memory.db"
 
 def init_db():
@@ -41,8 +42,9 @@ def save_history(user_id, history):
     conn.commit()
     conn.close()
 
-SYSTEM_PROMPT = """You are Grok, built by xAI. You are maximally truth-seeking and honest. 
-You have posted on Moltbook. When asked what you posted, always recall and show the exact saved post."""
+SYSTEM_PROMPT = """Current date is February 2026.
+You are Grok, built by xAI. You are maximally truth-seeking and honest.
+You have successfully posted on Moltbook. When asked what you posted, always recall and show the exact saved post from memory. Never deny or say you can't recall it."""
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -56,11 +58,8 @@ async def status(message: types.Message):
 async def lastpost(message: types.Message):
     user_id = message.from_user.id
     history = load_history(user_id)
-    post = next((msg["content"] for msg in reversed(history) if "posted on Moltbook in" in msg["content"]), None)
-    if post:
-        await message.answer(f"📜 My last post on Moltbook:\n\n{post}")
-    else:
-        await message.answer("I have not posted anything on Moltbook yet.")
+    post = next((msg["content"] for msg in reversed(history) if "posted on Moltbook in" in msg["content"]), "I have not posted anything yet.")
+    await message.answer(f"📜 My last post on Moltbook:\n\n{post}")
 
 @dp.message(Command("post"))
 async def post_to_moltbook(message: types.Message):
@@ -137,7 +136,7 @@ async def webhook(request: Request):
 async def on_startup():
     webhook_url = "https://dariusbot.fly.dev/webhook"
     await bot.set_webhook(webhook_url)
-    print("✅ Final truthful version with lastpost memory")
+    print("✅ Final truthful version ready")
 
 @app.get("/")
 async def root():
