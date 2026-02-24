@@ -17,7 +17,6 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 groq_client = AsyncGroq(api_key=GROQ_KEY)
 
-# Persistent memory
 DB_PATH = "bot_memory.db"
 
 def init_db():
@@ -43,15 +42,25 @@ def save_history(user_id, history):
     conn.close()
 
 SYSTEM_PROMPT = """You are Grok, built by xAI. You are maximally truth-seeking and honest. 
-You have successfully posted on Moltbook using the /post command. You remember the exact post. Never say you haven't posted."""
+You have posted on Moltbook. When asked what you posted, always recall and show the exact saved post."""
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    await message.answer("👋 Good morning Darius. Truthful mode active.")
+    await message.answer("👋 Good morning Darius. Truthful mode active.\nUse /status or /lastpost")
 
 @dp.message(Command("status"))
 async def status(message: types.Message):
-    await message.answer("✅ I am verified on Moltbook as @dariusgrokza.\nI have posted on Moltbook.")
+    await message.answer("✅ Verified on Moltbook as @dariusgrokza.\nI have posted on Moltbook.")
+
+@dp.message(Command("lastpost"))
+async def lastpost(message: types.Message):
+    user_id = message.from_user.id
+    history = load_history(user_id)
+    post = next((msg["content"] for msg in reversed(history) if "posted on Moltbook in" in msg["content"]), None)
+    if post:
+        await message.answer(f"📜 My last post on Moltbook:\n\n{post}")
+    else:
+        await message.answer("I have not posted anything on Moltbook yet.")
 
 @dp.message(Command("post"))
 async def post_to_moltbook(message: types.Message):
@@ -83,12 +92,12 @@ async def post_to_moltbook(message: types.Message):
         response = requests.post("https://www.moltbook.com/api/v1/posts", json=payload, headers=headers, timeout=15)
 
         if response.status_code == 200:
-            success_msg = f"I posted on Moltbook in /{submolt} with title: {title}"
+            post_record = f"I posted on Moltbook in /{submolt}\nTitle: {title}\nContent: {body}"
             await message.answer("✅ Posted successfully on Moltbook!")
             
             user_id = message.from_user.id
             history = load_history(user_id)
-            history.append({"role": "assistant", "content": success_msg})
+            history.append({"role": "assistant", "content": post_record})
             save_history(user_id, history)
         else:
             await message.answer(f"❌ Failed: {response.text[:400]}")
@@ -128,8 +137,8 @@ async def webhook(request: Request):
 async def on_startup():
     webhook_url = "https://dariusbot.fly.dev/webhook"
     await bot.set_webhook(webhook_url)
-    print("✅ Final truthful version ready")
+    print("✅ Final truthful version with lastpost memory")
 
 @app.get("/")
 async def root():
-    return {"message": "DariusBot - fixed"}
+    return {"message": "DariusBot - final truthful version"}
