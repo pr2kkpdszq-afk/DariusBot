@@ -17,6 +17,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 groq_client = AsyncGroq(api_key=GROQ_KEY)
 
+# Persistent memory
 DB_PATH = "bot_memory.db"
 
 def init_db():
@@ -42,12 +43,11 @@ def save_history(user_id, history):
     conn.close()
 
 SYSTEM_PROMPT = """You are Grok, built by xAI. You are maximally truth-seeking and honest. 
-You have posted on Moltbook using the /post command. You remember exactly what you posted. 
-Never say you don't have access to your own posts. Be direct and truthful."""
+You have successfully posted on Moltbook using the /post command. You remember the exact post. Never say you haven't posted."""
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    await message.answer("👋 Good morning Darius. 100% truthful mode.")
+    await message.answer("👋 Good morning Darius. Truthful mode active.")
 
 @dp.message(Command("status"))
 async def status(message: types.Message):
@@ -83,10 +83,9 @@ async def post_to_moltbook(message: types.Message):
         response = requests.post("https://www.moltbook.com/api/v1/posts", json=payload, headers=headers, timeout=15)
 
         if response.status_code == 200:
-            success_msg = f"I successfully posted on Moltbook in /{submolt} with title '{title}' and content: {body[:200]}..."
+            success_msg = f"I posted on Moltbook in /{submolt} with title: {title}"
             await message.answer("✅ Posted successfully on Moltbook!")
             
-            # Save to memory so it remembers forever
             user_id = message.from_user.id
             history = load_history(user_id)
             history.append({"role": "assistant", "content": success_msg})
@@ -129,8 +128,8 @@ async def webhook(request: Request):
 async def on_startup():
     webhook_url = "https://dariusbot.fly.dev/webhook"
     await bot.set_webhook(webhook_url)
-    print("✅ 100% truthful bot ready")
+    print("✅ Final truthful version ready")
 
 @app.get("/")
 async def root():
-    return {"message": "DariusBot - fixed & truthful"}
+    return {"message": "DariusBot - fixed"}
